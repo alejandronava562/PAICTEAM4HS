@@ -34,11 +34,25 @@ def main():
     ideas = call_api(SYSTEM_PROMPT, 
                      USER_TEMPLATE.format(project=user_project, context= user_context), 
                      IDEA_SCHEMA)
+    print("Summary:")
     print(ideas["summary"])
+    print()
     print("IDEAS:\n")
-    for idea in ideas["direction"]:
-        
+    for idea in ideas["directions"]:
+        idea_num = idea["idea_num"]
+        title = idea["label"]
+        description = idea["description"]
+        print(f'{idea_num}. {title}')
+        print(description)
+    chosen_idea_num = input("Pick an option by number")
+    #To do: add error handling for variable
+    chosen_idea = next(idea for idea in ideas["directions"] if idea["id"] == chosen_idea_num), None 
+    if not chosen_idea:
+        print("ERROR")
+        return
+    #
 
+    
 
 if __name__ == "__main__":
     main()
