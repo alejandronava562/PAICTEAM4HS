@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple MVP Web App</title>
+</head>
+<body>
+    <h1>MVP Generator</h1>
+
+    <form id="mainForm">
+        <label>Project:<br>
+            <input type="text" id="project">
+        </label><br><br>
+
+        <label>Context:<br>
+            <input type="text" id="context">
+        </label><br><br>
+
+        <label>Chosen Idea Number:<br>
+            <input type="text" id="chosen">
+        </label><br><br>
+
+        <button type="submit">Run</button>
+    </form>
+
+    <pre id="output"></pre>
+
+    <script>
+        document.getElementById("mainForm").onsubmit = async function(e) {
+            e.preventDefault();
+
+            const payload = {
+                project: document.getElementById("project").value,
+                context: document.getElementById("context").value,
+                chosen_idea_num: document.getElementById("chosen").value
+            };
+
+            const res = await fetch("/run", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+        };
+    </script>
+</body>
+</html>
