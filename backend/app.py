@@ -1,4 +1,6 @@
-from flask import Flask, request, jsonify
+from pathlib import Path
+
+from flask import Flask, request, jsonify, render_template
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
@@ -8,7 +10,8 @@ from prompts import USER_TEMPLATE, SYSTEM_PROMPT, IDEA_SCHEMA, USER_PLAN, CHOSEN
 
 load_dotenv()
 
-app = Flask(__name__)
+BASE_DIR = Path(__file__).resolve().parent.parent
+app = Flask(__name__, template_folder=str(BASE_DIR / "templates"))
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
@@ -25,38 +28,42 @@ def call_api(system_prompt, user_prompt, schema):
     return json.loads(text)
 
 
-@app.route("/run", methods=["POST"])
-def run():
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.post("/ideas")
+def ideas():
     data = request.json
     project = data.get("project", "")
     context = data.get("context", "")
-    chosen_id = data.get("chosen_idea_num", "")
-
-    # Stage 1: Ideas
     ideas = call_api(
         SYSTEM_PROMPT,
         USER_TEMPLATE.format(project=project, context=context),
         IDEA_SCHEMA,
     )
 
-    # Get chosen idea
-    try:
-        chosen_idea = next(i for i in ideas["directions"] if i["idea_num"] == chosen_id)
-    except StopIteration:
-        return jsonify({"error": "Chosen idea not found"}), 400
+    return jsonify(ideas)
 
-    # Stage 2: Plan
+
+@app.route("/plan")
+def plan():
+    data = request.json
+    project = data.get("project", "")
+    context = data.get("context", "")
+    chosen_id = data.get("chosen_idea_num", "")
+    chosen_label = data.get("chosen_label", "")
+    chosen_idea = {"id": chosen_id, "label":chosen_label}
+
+
+    # Plan Only
     plan = call_api(
         SYSTEM_PROMPT,
         USER_PLAN.format(project=project, context=context, chosen_idea=chosen_idea),
         CHOSEN_PLAN_SCEMA,
     )
 
-    return jsonify({
-        "ideas": ideas,
-        "chosen_idea": chosen_idea,
-        "plan": plan
-    })
+    return jsonify({ "plan": plan, "chosen_idea" : chosen_idea})
 
 
 if __name__ == "__main__":

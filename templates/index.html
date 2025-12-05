@@ -1,48 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simple MVP Web App</title>
+  <title>MVP Generator</title>
 </head>
 <body>
-    <h1>MVP Generator</h1>
+  <h1>MVP Generator</h1>
 
-    <form id="mainForm">
-        <label>Project:<br>
-            <input type="text" id="project">
-        </label><br><br>
+  <form id="ideaForm">
+    <label>Project:<br><input type="text" id="project"></label><br><br>
+    <label>Context:<br><input type="text" id="context"></label><br><br>
+    <button type="submit">Get Ideas</button>
+  </form>
 
-        <label>Context:<br>
-            <input type="text" id="context">
-        </label><br><br>
+  <div id="ideas"></div>
 
-        <label>Chosen Idea Number:<br>
-            <input type="text" id="chosen">
-        </label><br><br>
+  <form id="planForm" style="display:none;">
+    <button type="submit">Generate Plan</button>
+  </form>
 
-        <button type="submit">Run</button>
-    </form>
+  <pre id="output"></pre>
 
-    <pre id="output"></pre>
+  <script>
+    let ideas = [];
 
-    <script>
-        document.getElementById("mainForm").onsubmit = async function(e) {
-            e.preventDefault();
+    document.getElementById("ideaForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const payload = {
+        project: document.getElementById("project").value,
+        context: document.getElementById("context").value
+      };
+      const res = await fetch("/ideas", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      ideas = data.directions || [];
+      const container = document.getElementById("ideas");
+      container.innerHTML = ideas.map(i => `
+        <label>
+          <input type="radio" name="idea" value="${i.idea_num}::${i.label}">
+          <strong>${i.label}</strong> — ${i.description}
+        </label><br>
+      `).join("");
+      document.getElementById("planForm").style.display = ideas.length ? "block" : "none";
+    };
 
-            const payload = {
-                project: document.getElementById("project").value,
-                context: document.getElementById("context").value,
-                chosen_idea_num: document.getElementById("chosen").value
-            };
-
-            const res = await fetch("/run", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(payload)
-            });
-
-            const data = await res.json();
-            document.getElementById("output").textContent = JSON.stringify(data, null, 2);
-        };
-    </script>
+    document.getElementById("planForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const choice = document.querySelector('input[name="idea"]:checked');
+      if (!choice) return;
+      const [id, label] = choice.value.split("::");
+      const payload = {
+        project: document.getElementById("project").value,
+        context: document.getElementById("context").value,
+        chosen_idea_num: id,
+        chosen_label: label
+      };
+      const res = await fetch("/plan", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+    };
+  </script>
 </body>
 </html>

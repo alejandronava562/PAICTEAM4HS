@@ -71,17 +71,19 @@ CHOSEN_PLAN_SCEMA = {
         "properties": {
             "chosen_direction_id" : {"type": "string"},
             "goal": {"type": "string"},
-            "timeline_days": {"type": "int", "minimum": 1},
+            "timeline_days": {"type": "integer", "minimum": 1},
             "steps": {
                 "type": "array",
-                "items": "object",
-                "properties": {
-                    "step_number": {"type": "int"},
-                    "label": {"type": "string"},
-                    "instructions": {"type": "string"},
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "step_number": {"type": "integer"},
+                        "label": {"type": "string"},
+                        "instructions": {"type": "string"},
+                    },
+                    "required": ["step_number", "label", "instructions"],
+                    "additionalProperties": False,
                 },
-                "required": ["step_number", "label", "instructions"],
-                "additionalProperties": False,
             },
         },
         "required": ["goal", "chosen_direction_id", "timeline_days", "steps"],
