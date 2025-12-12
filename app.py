@@ -46,7 +46,7 @@ def call_api(system_prompt, user_prompt, schema):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("../templates/index.html")
 
 @app.post("/ideas")
 def ideas():
@@ -73,13 +73,13 @@ def plan():
 
 
     # Plan Only
-    plan = call_api(
+    plan_response = call_api(
         SYSTEM_PROMPT,
         USER_PLAN.format(project=project, context=context, chosen_idea=chosen_idea),
         CHOSEN_PLAN_SCEMA,
     )
 
-    return jsonify({ "plan": plan, "chosen_idea" : chosen_idea})
+    return jsonify({ "plan": plan_response, "chosen_idea" : chosen_idea})
 
 
 if __name__ == "__main__":
