@@ -6,7 +6,23 @@ from dotenv import load_dotenv
 import os
 import json
 
-from prompts import USER_TEMPLATE, SYSTEM_PROMPT, IDEA_SCHEMA, USER_PLAN, CHOSEN_PLAN_SCEMA
+# Allow running both as a package (Render/Gunicorn) and as a script (local dev).
+try:
+    from .prompts import (
+        USER_TEMPLATE,
+        SYSTEM_PROMPT,
+        IDEA_SCHEMA,
+        USER_PLAN,
+        CHOSEN_PLAN_SCEMA,
+    )
+except ImportError:
+    from prompts import (  # type: ignore
+        USER_TEMPLATE,
+        SYSTEM_PROMPT,
+        IDEA_SCHEMA,
+        USER_PLAN,
+        CHOSEN_PLAN_SCEMA,
+    )
 
 load_dotenv()
 
@@ -46,7 +62,7 @@ def ideas():
     return jsonify(ideas)
 
 
-@app.route("/plan")
+@app.post("/plan")
 def plan():
     data = request.json
     project = data.get("project", "")
