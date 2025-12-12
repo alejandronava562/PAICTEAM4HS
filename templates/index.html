@@ -9,13 +9,15 @@
   <form id="ideaForm">
     <label>Project:<br><input type="text" id="project"></label><br><br>
     <label>Context:<br><input type="text" id="context"></label><br><br>
-    <button type="submit">Get Ideas</button>
+    <button type="submit" id="ideaButton">Get Ideas</button>
+    <span id="ideaLoading" style="display:none; margin-left:8px;">Fetching ideas...</span>
   </form>
 
   <div id="ideas"></div>
 
   <form id="planForm" style="display:none;">
-    <button type="submit">Generate Plan</button>
+    <button type="submit" id="planButton">Generate Plan</button>
+    <span id="planLoading" style="display:none; margin-left:8px;">Generating plan...</span>
   </form>
 
   <pre id="output"></pre>
@@ -23,33 +25,56 @@
   <script>
     let ideas = [];
 
-    document.getElementById("ideaForm").onsubmit = async (e) => {
+    const ideaForm = document.getElementById("ideaForm");
+    const planForm = document.getElementById("planForm");
+    const output = document.getElementById("output");
+    const ideasContainer = document.getElementById("ideas");
+
+    ideaForm.onsubmit = async (e) => {
       e.preventDefault();
+      const button = document.getElementById("ideaButton");
+      const loader = document.getElementById("ideaLoading");
+      button.disabled = true;
+      loader.style.display = "inline";
+      planForm.style.display = "none";
+      output.textContent = "";
+      ideasContainer.innerHTML = "";
       const payload = {
         project: document.getElementById("project").value,
         context: document.getElementById("context").value
       };
-      const res = await fetch("/ideas", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      ideas = data.directions || [];
-      const container = document.getElementById("ideas");
-      container.innerHTML = ideas.map(i => `
-        <label>
-          <input type="radio" name="idea" value="${i.idea_num}::${i.label}">
-          <strong>${i.label}</strong> — ${i.description}
-        </label><br>
-      `).join("");
-      document.getElementById("planForm").style.display = ideas.length ? "block" : "none";
+      try {
+        const res = await fetch("/ideas", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        ideas = data.directions || [];
+        ideasContainer.innerHTML = ideas.map(i => `
+          <label>
+            <input type="radio" name="idea" value="${i.idea_num}::${i.label}">
+            <strong>${i.label}</strong> - ${i.description}
+          </label><br>
+        `).join("");
+        planForm.style.display = ideas.length ? "block" : "none";
+      } catch (err) {
+        output.textContent = "Error fetching ideas. Please try again.";
+      } finally {
+        button.disabled = false;
+        loader.style.display = "none";
+      }
     };
 
-    document.getElementById("planForm").onsubmit = async (e) => {
+    planForm.onsubmit = async (e) => {
       e.preventDefault();
+      const button = document.getElementById("planButton");
+      const loader = document.getElementById("planLoading");
       const choice = document.querySelector('input[name="idea"]:checked');
       if (!choice) return;
+      button.disabled = true;
+      loader.style.display = "inline";
+      output.textContent = "";
       const [id, label] = choice.value.split("::");
       const payload = {
         project: document.getElementById("project").value,
@@ -57,13 +82,20 @@
         chosen_idea_num: id,
         chosen_label: label
       };
-      const res = await fetch("/plan", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+      try {
+        const res = await fetch("/plan", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.textContent = "Error generating plan. Please try again.";
+      } finally {
+        button.disabled = false;
+        loader.style.display = "none";
+      }
     };
   </script>
 </body>
