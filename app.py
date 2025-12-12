@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 import os
 import json
 
-# Allow running both as a package (Render/Gunicorn) and as a script (local dev).
+# Allow running both via `python app.py` and via Gunicorn/Render.
 try:
-    from .backend.prompts import (
+    from backend.prompts import (
         USER_TEMPLATE,
         SYSTEM_PROMPT,
         IDEA_SCHEMA,
@@ -26,7 +26,7 @@ except ImportError:
 
 load_dotenv()
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 app = Flask(__name__, template_folder=str(BASE_DIR / "templates"))
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -46,7 +46,7 @@ def call_api(system_prompt, user_prompt, schema):
 
 @app.route("/")
 def index():
-    return render_template("../templates/index.html")
+    return render_template("index.html")
 
 @app.post("/ideas")
 def ideas():
