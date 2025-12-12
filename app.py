@@ -8,7 +8,7 @@ import json
 
 # Allow running both as a package (Render/Gunicorn) and as a script (local dev).
 try:
-    from .prompts import (
+    from .backend.prompts import (
         USER_TEMPLATE,
         SYSTEM_PROMPT,
         IDEA_SCHEMA,
