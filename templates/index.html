@@ -1,102 +1,92 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>MVP Generator</title>
-</head>
-<body>
-  <h1>MVP Generator</h1>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AI Project Builder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <form id="ideaForm">
-    <label>Project:<br><input type="text" id="project"></label><br><br>
-    <label>Context:<br><input type="text" id="context"></label><br><br>
-    <button type="submit" id="ideaButton">Get Ideas</button>
-    <span id="ideaLoading" style="display:none; margin-left:8px;">Fetching ideas...</span>
-  </form>
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <div id="ideas"></div>
+    <link
+      rel="stylesheet"
+      href="{{url_for('static', filename='styles.css')}}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Hero -->
+      <section class="hero">
+        <h1>AI Project Builder</h1>
+        <p>
+          Transform your ideas into reality with AI-powered project planning and
+          execution.
+        </p>
+        <button class="btn-primary">Get Started</button>
+      </section>
 
-  <form id="planForm" style="display:none;">
-    <button type="submit" id="planButton">Generate Plan</button>
-    <span id="planLoading" style="display:none; margin-left:8px;">Generating plan...</span>
-  </form>
+      <!-- Input Card -->
+     <form id="idea-form" class="card">
+        <h1>Project Idea Form</h1>
 
-  <pre id="output"></pre>
+        <label for="project"> Project Idea</label>
+        <input id="project" name="project" type="text" placeholder="Type in your project idea here" required>
 
-  <script>
-    let ideas = [];
+        <label for="Context"> Context (optional)</label>
+        <textarea id="context" name="context"></textarea>
 
-    const ideaForm = document.getElementById("ideaForm");
-    const planForm = document.getElementById("planForm");
-    const output = document.getElementById("output");
-    const ideasContainer = document.getElementById("ideas");
+        <div class="card-actions">
+          <button id="ideas-btn" type="submit" class="btn-primary">Generate Project Ideas</button>
+        </div>
+        
+        <p id="idea-status" class="muted"></p>
 
-    ideaForm.onsubmit = async (e) => {
-      e.preventDefault();
-      const button = document.getElementById("ideaButton");
-      const loader = document.getElementById("ideaLoading");
-      button.disabled = true;
-      loader.style.display = "inline";
-      planForm.style.display = "none";
-      output.textContent = "";
-      ideasContainer.innerHTML = "";
-      const payload = {
-        project: document.getElementById("project").value,
-        context: document.getElementById("context").value
-      };
-      try {
-        const res = await fetch("/ideas", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        ideas = data.directions || [];
-        ideasContainer.innerHTML = ideas.map(i => `
-          <label>
-            <input type="radio" name="idea" value="${i.idea_num}::${i.label}">
-            <strong>${i.label}</strong> - ${i.description}
-          </label><br>
-        `).join("");
-        planForm.style.display = ideas.length ? "block" : "none";
-      } catch (err) {
-        output.textContent = "Error fetching ideas. Please try again.";
-      } finally {
-        button.disabled = false;
-        loader.style.display = "none";
-      }
-    };
+     </form>
 
-    planForm.onsubmit = async (e) => {
-      e.preventDefault();
-      const button = document.getElementById("planButton");
-      const loader = document.getElementById("planLoading");
-      const choice = document.querySelector('input[name="idea"]:checked');
-      if (!choice) return;
-      button.disabled = true;
-      loader.style.display = "inline";
-      output.textContent = "";
-      const [id, label] = choice.value.split("::");
-      const payload = {
-        project: document.getElementById("project").value,
-        context: document.getElementById("context").value,
-        chosen_idea_num: id,
-        chosen_label: label
-      };
-      try {
-        const res = await fetch("/plan", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        output.textContent = JSON.stringify(data, null, 2);
-      } catch (err) {
-        output.textContent = "Error generating plan. Please try again.";
-      } finally {
-        button.disabled = false;
-        loader.style.display = "none";
-      }
-    };
-  </script>
-</body>
+      <!-- Generated Ideas -->
+      <div id=ideas=card" class="card hidden">
+        <h3>Generated Project Ideas</h3>
+
+        <ul id = "ideas-list" class="idea-list"></ul>
+
+        <div class="card-actions">
+          <button class="btn-primary">Generate Project Plan</button>
+        </div>
+      </div>
+
+      <!-- How it Works -->
+      <section class="how-it-works">
+        <h2>How It Works</h2>
+
+        <div class="steps">
+          <div class="step-card">
+            <div class="step-icon">?</div>
+            <h4>Share Your Idea</h4>
+            <p>Describe your project vision and any specific requirements.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-icon">⚡</div>
+            <h4>AI Analysis</h4>
+            <p>AI analyzes your input and generates a clear project roadmap.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-icon">🚀</div>
+            <h4>Start Building</h4>
+            <p>
+              Get actionable steps and resources to bring your project to life.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js')}}"></script>
+  </body>
 </html>
