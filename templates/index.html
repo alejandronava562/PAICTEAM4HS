@@ -49,14 +49,24 @@
      </form>
 
       <!-- Generated Ideas -->
-      <div id=ideas=card" class="card hidden">
+      <div id="ideas-card" class="card hidden">
         <h3>Generated Project Ideas</h3>
 
-        <ul id = "ideas-list" class="idea-list"></ul>
+        <ul id="ideas-list" class="idea-list"></ul>
 
         <div class="card-actions">
-          <button class="btn-primary">Generate Project Plan</button>
+          <button id="plan-btn" type="button" class="btn-primary">Generate Project Plan</button>
+          <p id="idea-error" class="muted"></p>
         </div>
+      </div>
+
+      <!-- Plan Output -->
+      <div id="plan-card" class="card hidden">
+        <h3>Project Plan</h3>
+        <p><strong>Goal:</strong> <span id="plan-goal"></span></p>
+        <p><strong>Timeline (days):</strong> <span id="plan-timeline"></span></p>
+        <ol id="plan-steps"></ol>
+        <p id="plan-status" class="muted"></p>
       </div>
 
       <!-- How it Works -->
