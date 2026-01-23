@@ -100,7 +100,7 @@ planBtn.addEventListener("click", async () => {
     return;
   }
 // prepare UI and payload
-  planStatus.textContent = "Generating plan...";
+  planStatus.innerHTML = '<div class="loader"></div><br>Generating Plan...';
   planBtn.disabled = true;
   planCard.classList.add("hidden");
 
