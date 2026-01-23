@@ -51,7 +51,7 @@ const resetPlanUI = () => {
 //generates ideas when form is submitted
 form.addEventListener('submit', async(e) => {
     e.preventDefault();
-    ideasStatus.innerHTML = '<div class="loader"></div>Generating...';
+    ideasStatus.innerHTML = '<div class="loader"></div><br>Generating...';
     // FIXME: fix ideasbtn var reference
     ideasBtn.disabled = true;
     ideasCard.classList.add("hidden");
