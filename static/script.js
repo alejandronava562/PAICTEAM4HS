@@ -101,8 +101,6 @@ planBtn.addEventListener("click", async () => {
   }
 // prepare UI and payload
   planStatus.innerHTML = '<div class="loader"></div><br>Generating Plan...';
-  planStatus.style.backgroundColor = "yellow";
-  planStatus.style.color = "black";
   planBtn.disabled = true;
   planCard.classList.add("hidden");
 
