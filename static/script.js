@@ -145,10 +145,10 @@ planBtn.addEventListener("click", async () => {
 
 copyBtn.addEventListener("click", async () => {
   // Build a plain-text version of the plan
+  //grabbing from the website
   const goal = planGoal.textContent.trim();
   const timeline = planTimeline.textContent.trim();
   const steps = Array.from(planSteps.children).map((li) => li.textContent.trim());
-
   const planText = [
     goal ? `Goal: ${goal}` : "",
     timeline ? `Timeline: ${timeline} days` : "",
@@ -157,14 +157,15 @@ copyBtn.addEventListener("click", async () => {
   ]
     .filter(Boolean)
     .join("\n");
-
+  console.log("PLAN TEXT TO COPY:\n", planText);
   if (!planText) {
     planStatus.textContent = "Nothing to copy yet.";
     return;
   }
-
   try {
     await navigator.clipboard.writeText(planText);
+    await navigator.clipboard.writeText("test copy");
+    alert("Copied 'test copy' to clipboard!");
     planStatus.textContent = "Plan copied to clipboard!";
   } catch (err) {
     console.error("Copy failed", err);
