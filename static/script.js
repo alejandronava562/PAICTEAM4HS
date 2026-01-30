@@ -2,6 +2,7 @@ const form = document.querySelector("#idea-form");
 const projectInput = document.querySelector("#project");
 const contextInput = document.querySelector("#context");
 const ideasBtn = document.querySelector("#ideas-btn");
+const coyyBtn = document.querySelector("#copy-plan-btn");
 const ideasStatus = document.querySelector("#idea-status");
 const ideasCard = document.querySelector("#ideas-card");
 const ideasList = document.querySelector("#ideas-list");
@@ -139,5 +140,34 @@ planBtn.addEventListener("click", async () => {
     planCard.classList.add("hidden");
   } finally {
     planBtn.disabled = false;
+  }
+});
+
+copyBtn.addEventListener("click", async () => {
+  // Build a plain-text version of the plan
+  const goal = planGoal.textContent.trim();
+  const timeline = planTimeline.textContent.trim();
+  const steps = Array.from(planSteps.children).map((li) => li.textContent.trim());
+
+  const planText = [
+    goal ? `Goal: ${goal}` : "",
+    timeline ? `Timeline: ${timeline} days` : "",
+    steps.length ? "Steps:" : "",
+    ...steps.map((s, i) => `${i + 1}. ${s}`),
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  if (!planText) {
+    planStatus.textContent = "Nothing to copy yet.";
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(planText);
+    planStatus.textContent = "Plan copied to clipboard!";
+  } catch (err) {
+    console.error("Copy failed", err);
+    planStatus.textContent = "Error copying plan.";
   }
 });
